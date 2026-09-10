@@ -1,0 +1,36 @@
+{
+  "name": "anz-automation-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test:web": "cucumber-js --profile web",
+    "allure:clean": "node -e \"const fs=require('fs'); ['allure-results','allure-report'].forEach(p => fs.rmSync(p, { recursive: true, force: true }));\"",
+    "allure:generate": "allure generate ./allure-results --output allure-report",
+    "allure:open": "allure open allure-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naresh-sagathiya/anz-automation-poc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/naresh-sagathiya/anz-automation-poc/issues"
+  },
+  "homepage": "https://github.com/naresh-sagathiya/anz-automation-poc#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0",
+    "allure": "^3.16.0",
+    "allure-cucumberjs": "^3.11.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^13.2.1",
+    "dotenv": "^17.4.2",
+    "otpauth": "^9.5.1"
+  }
+}
