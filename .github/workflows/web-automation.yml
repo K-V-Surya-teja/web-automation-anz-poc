@@ -1,45 +1,53 @@
-name: Web Automation
+name: Web Automation (Windows)
 
 on:
   push:
-    branches: [ web-workflow-test ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  web:
-    name: Web Cucumber tests
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-
+  web-tests-windows:
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-          cache: npm
+          node-version: '26'
 
       - name: Install dependencies
         run: npm ci
+        shell: pwsh
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Create reports dir
+        run: New-Item -ItemType Directory -Path reports -Force
+        shell: pwsh
 
-      - name: Run web Cucumber tests
-        env:
-          BROWSER: chromium
-          HEADLESS: true
-          SLOW_MO_MS: 250
-          WEB_BASE_URL: https://parabank.parasoft.com/parabank
-        run: npm run test:web -- --tags "@registration"
+      - name: Run Cucumber (capture output + JSON report) - PowerShell
+        shell: pwsh
+        run: |
+          # Run cucumber-js, save JSON report and write full console output to cucumber.log
+          # Use & to invoke npx so $LASTEXITCODE is set correctly.
+          & npx cucumber-js --profile web --tags @registration --format json:reports/cucumber.json 2>&1 | Tee-Object -FilePath cucumber.log
 
-      - name: Upload web report
-        if: ${{ !cancelled() }}
+          # Preserve the underlying process exit code
+          $exitCode = ${LASTEXITCODE}
+          exit $exitCode
+
+      - name: Upload cucumber log
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: web-cucumber-report
-          path: |
-            reports/web/web-cucumber-report.html
-            allure-results/
-          retention-days: 30
+          name: cucumber-log-windows
+          path: cucumber.log
+
+      - name: Upload cucumber JSON report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cucumber-json-windows
+          path: reports/cucumber.json
