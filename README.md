@@ -37,3 +37,15 @@ HTML and Allure results are written to `reports/` and `allure-results/`.
 Create a Pipeline job pointing to this repository's `Jenkinsfile`, then click **Build Now**. The pipeline runs only the `@account-number-visibility` scenario and uses Chromium by default. Set `WEB_BASE_URL` in the Jenkins agent environment or provide it through the local `.env` configuration; it is not passed through the Jenkinsfile. To run another feature, change the tag in the `Run Web Tests` stage of the Jenkinsfile and push the change.
 
 The job records JUnit results and archives the Cucumber HTML and Allure result files on every build. The Pipeline, JUnit, HTML Publisher, and Allure Report plugins can be installed to add dedicated report links to the build page. Configure MFA scenarios with `MFA_BASE_URL`, `GITHUB_USER`, `GITHUB_PASS`, and `GITHUB_MFA_SECRET` as Jenkins environment variables or credentials; do not commit them to the repository.
+
+Each build also emails the execution status and attaches the Cucumber HTML and JUnit reports to `vivek123shegal@gmail.com`. Configure the Jenkins SMTP server under **Manage Jenkins > System** for email delivery.
+
+### Blank Archived HTML Report
+
+The Cucumber HTML report is a self-contained JavaScript report. If it opens blank from Jenkins, Jenkins Content-Security-Policy is blocking its inline scripts. An administrator can update the policy in **Manage Jenkins > Script Console** and restart Jenkins:
+
+```groovy
+System.setProperty('hudson.model.DirectoryBrowserSupport.CSP', "sandbox allow-scripts; default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'")
+```
+
+The JUnit result remains available from the build's **Test Result** link even when the HTML artifact is blocked.

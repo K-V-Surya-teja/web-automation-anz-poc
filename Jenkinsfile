@@ -32,6 +32,16 @@ pipeline {
         always {
             junit testResults: 'reports/cucumber-results.xml', allowEmptyResults: true
             archiveArtifacts artifacts: 'reports/**/*,allure-results/**/*', allowEmptyArchive: true
+            emailext(
+                to: 'vivek123shegal@gmail.com',
+                subject: "${env.JOB_NAME} #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
+                body: """<p>Jenkins build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> finished with status: <b>${currentBuild.currentResult}</b>.</p>
+<p>Build URL: <a href=\"${env.BUILD_URL}\">${env.BUILD_URL}</a></p>
+<p>The Cucumber HTML report and JUnit results are attached.</p>""",
+                mimeType: 'text/html',
+                attachmentsPattern: 'reports/web-cucumber-report.html,reports/cucumber-results.xml',
+                attachLog: true
+            )
         }
     }
 }
