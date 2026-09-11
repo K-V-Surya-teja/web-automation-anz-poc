@@ -57,7 +57,7 @@ jobs:
           Write-Host ""
           
           # Run cucumber-js without verbose logging
-          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json --format progress 2>&1 | Tee-Object -FilePath cucumber.log
+          & npx cucumber-js --profile web --format json:reports/cucumber.json --format progress 2>&1 | Tee-Object -FilePath cucumber.log
           
           # Preserve the underlying process exit code
           $exitCode = ${LASTEXITCODE}
