@@ -39,15 +39,22 @@ jobs:
             }
           }
 
-      - name: Run Cucumber (capture output + JSON report) - PowerShell
+      - name: Run Cucumber with verbose logging - PowerShell
         shell: pwsh
+        env:
+          DEBUG: '*'
         run: |
-          # Run cucumber-js, save JSON report and write full console output to cucumber.log
-          # Use & to invoke npx so $LASTEXITCODE is set correctly.
-          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json 2>&1 | Tee-Object -FilePath cucumber.log
-
+          Write-Host "Environment Variables:"
+          Write-Host "BROWSER=$([Environment]::GetEnvironmentVariable('BROWSER', 'Process'))"
+          Write-Host "WEB_BASE_URL=$([Environment]::GetEnvironmentVariable('WEB_BASE_URL', 'Process'))"
+          Write-Host ""
+          
+          # Run cucumber-js with verbose logging
+          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json --format progress 2>&1 | Tee-Object -FilePath cucumber.log
+          
           # Preserve the underlying process exit code
           $exitCode = ${LASTEXITCODE}
+          Write-Host "Cucumber exit code: $exitCode"
           exit $exitCode
 
       - name: Upload cucumber log
