@@ -40,4 +40,4 @@ Create a Pipeline job pointing to this repository's `Jenkinsfile`. The pipeline 
 - `BROWSER`: `chromium`, `firefox`, or `webkit`.
 - `WEB_BASE_URL`: the ParaBank environment URL.
 
-The Jenkins controller or agent must have the Pipeline, JUnit, HTML Publisher, and Allure Report plugins installed. The job publishes the JUnit results, a link to the Cucumber HTML report, and an Allure report on every build. Configure MFA scenarios with `MFA_BASE_URL`, `GITHUB_USER`, `GITHUB_PASS`, and `GITHUB_MFA_SECRET` as Jenkins environment variables or credentials; do not commit them to the repository.
+The job records JUnit results and archives the Cucumber HTML and Allure result files on every build. The Pipeline, JUnit, HTML Publisher, and Allure Report plugins can be installed to add dedicated report links to the build page. Configure MFA scenarios with `MFA_BASE_URL`, `GITHUB_USER`, `GITHUB_PASS`, and `GITHUB_MFA_SECRET` as Jenkins environment variables or credentials; do not commit them to the repository.

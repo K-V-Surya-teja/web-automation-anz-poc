@@ -36,7 +36,12 @@ pipeline {
 
         stage('Run Web Tests') {
             steps {
-                bat 'npm run test:web -- --tags "%TEST_TAGS%"'
+                script {
+                    def testTags = params.TEST_TAGS?.trim() ?: '@smoke'
+                    withEnv(["TEST_TAGS=${testTags}"]) {
+                        bat 'npm run test:web -- --tags "%TEST_TAGS%"'
+                    }
+                }
             }
         }
     }
@@ -44,15 +49,6 @@ pipeline {
     post {
         always {
             junit testResults: 'reports/cucumber-results.xml', allowEmptyResults: true
-            publishHTML(target: [
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'reports',
-                reportFiles: 'web-cucumber-report.html',
-                reportName: 'Cucumber HTML Report'
-            ])
-            allure includeProperties: false, results: [[path: 'allure-results']]
             archiveArtifacts artifacts: 'reports/**/*,allure-results/**/*', allowEmptyArchive: true
         }
     }
