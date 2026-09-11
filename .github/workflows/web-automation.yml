@@ -51,3 +51,13 @@ jobs:
         with:
           name: cucumber-json-windows
           path: reports/cucumber.json
+      - name: Run Cucumber (capture output + JSON report) - PowerShell
+        shell: pwsh
+        run: |
+          # Run cucumber-js with verbose output
+          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json --publish-quiet 2>&1 | Tee-Object -FilePath cucumber.log
+          
+          # Preserve the underlying process exit code
+          $exitCode = ${LASTEXITCODE}
+          Write-Host "Exit code: $exitCode"
+          exit $exitCode
