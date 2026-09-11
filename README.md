@@ -34,10 +34,6 @@ HTML and Allure results are written to `reports/` and `allure-results/`.
 
 ## Jenkins
 
-Create a Pipeline job pointing to this repository's `Jenkinsfile`. The pipeline parameters are:
-
-- `TEST_TAGS`: Cucumber tag expression, defaulting to `@smoke`.
-- `BROWSER`: `chromium`, `firefox`, or `webkit`.
-- `WEB_BASE_URL`: the ParaBank environment URL.
+Create a Pipeline job pointing to this repository's `Jenkinsfile`, then click **Build Now**. The pipeline runs only the `@account-number-visibility` scenario and uses Chromium by default. Set `WEB_BASE_URL` in the Jenkins agent environment or provide it through the local `.env` configuration; it is not passed through the Jenkinsfile. To run another feature, change the tag in the `Run Web Tests` stage of the Jenkinsfile and push the change.
 
 The job records JUnit results and archives the Cucumber HTML and Allure result files on every build. The Pipeline, JUnit, HTML Publisher, and Allure Report plugins can be installed to add dedicated report links to the build page. Configure MFA scenarios with `MFA_BASE_URL`, `GITHUB_USER`, `GITHUB_PASS`, and `GITHUB_MFA_SECRET` as Jenkins environment variables or credentials; do not commit them to the repository.

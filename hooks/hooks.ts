@@ -9,7 +9,7 @@ import { TestUtils } from '../support/webTestutils';
 Before(async function (this: CustomWorld, scenario) {
 
   // Launch browser
-  const browserName = process.env.BROWSER?.toLowerCase();
+  const browserName = (process.env.BROWSER || 'chromium').toLowerCase();
   const headless = process.env.HEADLESS !== 'false';
  
   if (browserName === 'chromium') {
