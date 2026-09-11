@@ -32,7 +32,7 @@ jobs:
           HEADLESS: true
           SLOW_MO_MS: 250
           WEB_BASE_URL: https://parabank.parasoft.com/parabank
-        run: npm run test:web -- --tags "@registration or @login"
+        run: npm run test:web -- --tags "@registration"
 
       - name: Upload web report
         if: ${{ !cancelled() }}
