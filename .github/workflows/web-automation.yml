@@ -32,7 +32,7 @@ jobs:
         run: |
           # Run cucumber-js, save JSON report and write full console output to cucumber.log
           # Use & to invoke npx so $LASTEXITCODE is set correctly.
-          & npx cucumber-js --profile web --tags @registration --format json:reports/cucumber.json 2>&1 | Tee-Object -FilePath cucumber.log
+          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json 2>&1 | Tee-Object -FilePath cucumber.log
 
           # Preserve the underlying process exit code
           $exitCode = ${LASTEXITCODE}
