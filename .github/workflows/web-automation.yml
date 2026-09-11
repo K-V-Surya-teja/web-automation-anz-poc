@@ -30,27 +30,24 @@ jobs:
       - name: Load environment variables from .env
         shell: pwsh
         run: |
-          if (Test-Path .env) {
-            Get-Content .env -Raw -ErrorAction Stop | ForEach-Object {
-              $_ -split "`r?`n" | ForEach-Object {
-                if ($_ -match '^\s*([^=]+)=(.*)$') {
-                  $key = $matches[1].Trim()
-                  $value = $matches[2].Trim()
-                  [Environment]::SetEnvironmentVariable($key, $value, [EnvironmentVariableTarget]::Process)
-                  Write-Host "Set $key"
-                }
-              }
+          $envContent = Get-Content .env -Raw
+          $envContent -split '\n' | ForEach-Object {
+            if ($_ -match '^\s*([^=]+)=(.*)$') {
+              $key = $matches[1].Trim()
+              $value = $matches[2].Trim()
+              [Environment]::SetEnvironmentVariable($key, $value, [EnvironmentVariableTarget]::Process)
             }
-          } else {
-            Write-Host ".env not found; skipping environment load."
           }
 
-      - name: Run Cucumber (capture output + JSON report)
+      - name: Run Cucumber (capture output + JSON report) - PowerShell
         shell: pwsh
         run: |
-          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json --publish-quiet 2>&1 | Tee-Object -FilePath cucumber.log
-          $exitCode = $LASTEXITCODE
-          Write-Host "Exit code: $exitCode"
+          # Run cucumber-js, save JSON report and write full console output to cucumber.log
+          # Use & to invoke npx so $LASTEXITCODE is set correctly.
+          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json 2>&1 | Tee-Object -FilePath cucumber.log
+
+          # Preserve the underlying process exit code
+          $exitCode = ${LASTEXITCODE}
           exit $exitCode
 
       - name: Upload cucumber log
