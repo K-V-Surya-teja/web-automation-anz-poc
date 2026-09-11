@@ -14,6 +14,7 @@ module.exports = {
     format: [
       "progress",
       "html:reports/web-cucumber-report.html",
+      "junit:reports/cucumber-results.xml",
       "allure-cucumberjs/reporter",
     ],
 
