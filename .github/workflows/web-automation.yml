@@ -27,15 +27,30 @@ jobs:
         run: New-Item -ItemType Directory -Path reports -Force
         shell: pwsh
 
-      - name: Run Cucumber (capture output + JSON report) - PowerShell
+      - name: Load environment variables from .env
         shell: pwsh
         run: |
-          # Run cucumber-js, save JSON report and write full console output to cucumber.log
-          # Use & to invoke npx so $LASTEXITCODE is set correctly.
-          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json 2>&1 | Tee-Object -FilePath cucumber.log
+          if (Test-Path .env) {
+            Get-Content .env -Raw -ErrorAction Stop | ForEach-Object {
+              $_ -split "`r?`n" | ForEach-Object {
+                if ($_ -match '^\s*([^=]+)=(.*)$') {
+                  $key = $matches[1].Trim()
+                  $value = $matches[2].Trim()
+                  [Environment]::SetEnvironmentVariable($key, $value, [EnvironmentVariableTarget]::Process)
+                  Write-Host "Set $key"
+                }
+              }
+            }
+          } else {
+            Write-Host ".env not found; skipping environment load."
+          }
 
-          # Preserve the underlying process exit code
-          $exitCode = ${LASTEXITCODE}
+      - name: Run Cucumber (capture output + JSON report)
+        shell: pwsh
+        run: |
+          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json --publish-quiet 2>&1 | Tee-Object -FilePath cucumber.log
+          $exitCode = $LASTEXITCODE
+          Write-Host "Exit code: $exitCode"
           exit $exitCode
 
       - name: Upload cucumber log
@@ -51,13 +66,3 @@ jobs:
         with:
           name: cucumber-json-windows
           path: reports/cucumber.json
-      - name: Run Cucumber (capture output + JSON report) - PowerShell
-        shell: pwsh
-        run: |
-          # Run cucumber-js with verbose output
-          & npx cucumber-js --profile web --tags '@registration' --format json:reports/cucumber.json --publish-quiet 2>&1 | Tee-Object -FilePath cucumber.log
-          
-          # Preserve the underlying process exit code
-          $exitCode = ${LASTEXITCODE}
-          Write-Host "Exit code: $exitCode"
-          exit $exitCode
