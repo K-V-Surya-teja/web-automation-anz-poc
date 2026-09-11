@@ -2,7 +2,7 @@ name: Web Automation (Windows)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, web-workflow-test ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
