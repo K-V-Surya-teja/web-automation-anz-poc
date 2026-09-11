@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    // Scheduled trigger is currently disabled.
+    // Uncomment this block to run once daily at approximately 2:00 AM.
+    // Jenkins uses the controller/agent timezone for this schedule.
+    // triggers {
+    //     cron('H 2 * * *')
+    // }
+
     stages {
 
         stage('Checkout') {
