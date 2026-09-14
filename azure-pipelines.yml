@@ -37,6 +37,14 @@ steps:
     GITHUB_MFA_SECRET: $(GITHUB_MFA_SECRET)
     BROWSER: $(BROWSER)
     WEB_PARALLEL_WORKERS: $(WEB_PARALLEL_WORKERS)
+- task: PublishTestResults@2
+  displayName: 'Publish JUnit Test Results'
+  condition: always()
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'reports/cucumber.xml'
+    failTaskOnFailedTests: false
+    testRunTitle: 'Playwright Cucumber Tests'
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: reports
