@@ -2,6 +2,7 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { HorizontalAccessPage } from '../pages/horizontalAccessPage';
+import { LoginPage } from '../pages/loginPage';
 import { CustomWorld } from '../support/world';
 import testData from '../testData/paraBankData.json';
 
@@ -13,8 +14,11 @@ Given('a second user is registered in a separate browser context', async functio
   this.secondaryContext = await this.browser.newContext();
   this.secondaryPage = await this.secondaryContext.newPage();
 
-  const secondaryUser = new HorizontalAccessPage(this.secondaryPage);
-  await secondaryUser.registerUser(testData.registration);
+  await this.secondaryPage.goto(process.env.WEB_BASE_URL!);
+  await new LoginPage(this.secondaryPage).login(
+    testData.registration.secondaryUsername,
+    testData.registration.password,
+  );
   await expect(this.secondaryPage.getByRole('link', { name: /Log Out/i })).toBeVisible();
 });
 
