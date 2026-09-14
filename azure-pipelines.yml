@@ -1,5 +1,11 @@
 trigger:
-- main
+  branches:
+    include:
+      - main
+      - web-workflow-test
+
+variables:
+- group: WebAutomationVariables
 
 pool:
   vmImage: 'windows-latest'
@@ -22,9 +28,15 @@ steps:
   continueOnError: true
 
 - script: npm run test:web
-  displayName: 'Run Web Automation Tests'
-  continueOnError: true
-
+  displayName: 'Run Cucumber Tests'
+  env:
+    WEB_BASE_URL: $(WEB_BASE_URL)
+    MFA_BASE_URL: $(MFA_BASE_URL)
+    GITHUB_USER: $(GITHUB_USER)
+    GITHUB_PASS: $(GITHUB_PASS)
+    GITHUB_MFA_SECRET: $(GITHUB_MFA_SECRET)
+    BROWSER: $(BROWSER)
+    WEB_PARALLEL_WORKERS: $(WEB_PARALLEL_WORKERS)
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: reports
