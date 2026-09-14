@@ -7,6 +7,15 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
+  MFA_BASE_URL: ${{ vars.MFA_BASE_URL }}
+  GITHUB_USER: ${{ vars.GIT_USER }}
+  GITHUB_PASS: ${{ secrets.GIT_PASS }}
+  GITHUB_MFA_SECRET: ${{ secrets.GIT_MFA_SECRET }}
+  BROWSER: ${{ vars.BROWSER }}
+  WEB_PARALLEL_WORKERS: ${{ vars.WEB_PARALLEL_WORKERS }}
+
 jobs:
   web-tests-windows:
     runs-on: windows-latest
