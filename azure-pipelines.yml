@@ -1,5 +1,5 @@
 trigger:
-- web-workflow-test
+- main
 
 pool:
   vmImage: 'windows-latest'
@@ -21,15 +21,26 @@ steps:
   displayName: 'Create Reports Directory'
   continueOnError: true
 
-- script: |
-    npx cucumber-js ^
-      --profile web ^
-      --format json:reports/cucumber.json ^
-      --format progress
-  displayName: 'Run Cucumber Tests'
+- script: npm run test:web
+  displayName: 'Run Web Automation Tests'
+  continueOnError: true
 
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: reports
     artifact: CucumberReport
+  condition: always()
+
+- script: |
+    npm run allure:generate
+
+    echo ===== ALLURE REPORT =====
+    dir allure-report
+  displayName: 'Generate Allure Report'
+  condition: always()
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: 'allure-report'
+    artifact: 'AllureReport'
   condition: always()
