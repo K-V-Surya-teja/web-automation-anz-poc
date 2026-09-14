@@ -1,5 +1,6 @@
 trigger:
 - main
+- web-workflow-test
 
 pool:
   vmImage: 'windows-latest'
