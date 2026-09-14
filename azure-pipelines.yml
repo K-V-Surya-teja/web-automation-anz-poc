@@ -21,12 +21,9 @@ steps:
   displayName: 'Create Reports Directory'
   continueOnError: true
 
-- script: |
-    npx cucumber-js ^
-      --profile web ^
-      --format json:reports/cucumber.json ^
-      --format progress
-  displayName: 'Run Cucumber Tests'
+- script: npm run test:web
+  displayName: 'Run Web Automation Tests'
+  continueOnError: true
 
 - task: PublishPipelineArtifact@1
   inputs:
