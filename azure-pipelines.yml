@@ -1,5 +1,5 @@
 trigger:
-- web-workflow-test
+- main
 
 pool:
   vmImage: 'windows-latest'
@@ -32,4 +32,26 @@ steps:
   inputs:
     targetPath: reports
     artifact: CucumberReport
+  condition: always()
+
+- script: |
+    npm install -g allure-commandline
+
+    echo === Current Directory ===
+    dir
+
+    echo === Allure Results ===
+    dir allure-results
+
+    allure generate allure-results --clean -o allure-report
+
+    echo === Generated Report ===
+    dir allure-report
+  displayName: 'Generate Allure Report'
+  condition: always()
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: 'allure-report'
+    artifact: 'AllureReport'
   condition: always()
