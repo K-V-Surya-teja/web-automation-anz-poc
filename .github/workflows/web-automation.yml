@@ -2,9 +2,14 @@ name: Web Automation (Windows)
 
 on:
   push:
-    branches: [ main, web-workflow-test ]
+    branches:
+      - main
+      - web-workflow-test
+
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+
   workflow_dispatch:
 
 env:
@@ -19,63 +24,94 @@ env:
 jobs:
   web-tests-windows:
     runs-on: windows-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '26'
+          node-version: '24'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
         shell: pwsh
 
-      - name: Install Playwright browsers
+      - name: Install Playwright Browsers
         run: npx playwright install --with-deps
         shell: pwsh
 
-      - name: Create reports dir
+      - name: Create Reports Directory
         run: New-Item -ItemType Directory -Path reports -Force
         shell: pwsh
 
+      - name: Verify Environment Variables
+        shell: pwsh
+        run: |
+          Write-Host "WEB_BASE_URL loaded: $([bool]$env:WEB_BASE_URL)"
+          Write-Host "MFA_BASE_URL loaded: $([bool]$env:MFA_BASE_URL)"
+          Write-Host "GITHUB_USER loaded: $([bool]$env:GITHUB_USER)"
+          Write-Host "GITHUB_PASS loaded: $([bool]$env:GITHUB_PASS)"
+          Write-Host "GITHUB_MFA_SECRET loaded: $([bool]$env:GITHUB_MFA_SECRET)"
+          Write-Host "BROWSER = $env:BROWSER"
+          Write-Host "WEB_PARALLEL_WORKERS = $env:WEB_PARALLEL_WORKERS"
 
-      - name: Run Cucumber tests
+      - name: Run Cucumber Tests
         shell: pwsh
         env:
           DEBUG: ''
           PWDEBUG: ''
         run: |
-          Write-Host "========================================" -ForegroundColor Cyan
-          Write-Host "Starting Cucumber Tests" -ForegroundColor Cyan
-          Write-Host "========================================" -ForegroundColor Cyan
-          Write-Host "Browser: $([Environment]::GetEnvironmentVariable('BROWSER', 'Process'))"
-          Write-Host "Base URL: $([Environment]::GetEnvironmentVariable('WEB_BASE_URL', 'Process'))"
+          Write-Host "========================================"
+          Write-Host "Starting Cucumber Tests"
+          Write-Host "========================================"
+          Write-Host "Browser: $env:BROWSER"
+          Write-Host "Base URL: $env:WEB_BASE_URL"
           Write-Host ""
-          
-          # Run cucumber-js without verbose logging
-          & npx cucumber-js --profile web --format json:reports/cucumber.json --format progress 2>&1 | Tee-Object -FilePath cucumber.log
-          
-          # Preserve the underlying process exit code
-          $exitCode = ${LASTEXITCODE}
+
+          npm run test:web 2>&1 | Tee-Object -FilePath cucumber.log
+
+          $exitCode = $LASTEXITCODE
+
           Write-Host ""
-          Write-Host "========================================" -ForegroundColor Cyan
-          Write-Host "Test Execution Completed" -ForegroundColor Cyan
-          Write-Host "Exit Code: $exitCode" -ForegroundColor $(if ($exitCode -eq 0) { 'Green' } else { 'Red' })
-          Write-Host "========================================" -ForegroundColor Cyan
+          Write-Host "========================================"
+          Write-Host "Test Execution Completed"
+          Write-Host "Exit Code: $exitCode"
+          Write-Host "========================================"
+
           exit $exitCode
 
-      - name: Upload cucumber log
-        uses: actions/upload-artifact@v4
+      - name: Generate Allure Report
         if: always()
+        shell: pwsh
+        run: |
+          npm run allure:generate
+
+      - name: Upload Cucumber Log
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: cucumber-log-windows
           path: cucumber.log
 
-      - name: Upload cucumber JSON report
-        uses: actions/upload-artifact@v4
+      - name: Upload Cucumber Report
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: cucumber-json-windows
-          path: reports/cucumber.json
+          name: cucumber-report
+          path: reports
+
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      - name: Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: reports/screenshots
