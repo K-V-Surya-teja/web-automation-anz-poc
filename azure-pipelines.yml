@@ -1,0 +1,35 @@
+trigger:
+- web-workflow-test
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+
+- task: UseNode@1
+  inputs:
+    version: '24.x'
+  displayName: 'Set Up Node.js'
+
+- script: npm ci
+  displayName: 'Install Dependencies'
+
+- script: npx playwright install --with-deps
+  displayName: 'Install Playwright Browsers'
+
+- script: mkdir reports
+  displayName: 'Create Reports Directory'
+  continueOnError: true
+
+- script: |
+    npx cucumber-js ^
+      --profile web ^
+      --format json:reports/cucumber.json ^
+      --format progress
+  displayName: 'Run Cucumber Tests'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: reports
+    artifact: CucumberReport
+  condition: always()
