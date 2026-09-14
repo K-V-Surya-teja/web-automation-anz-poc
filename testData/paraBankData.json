@@ -8,11 +8,11 @@
     "zipCode": "12345",
     "phone": "5551234567",
     "ssn": "111223333",
-    "username": "anzstablen34vsp26nw",
+    "username": "john",
     "secondaryUsername": "haccess1789373526728",
     "usernamePrefix": "alpha",
-    "password": "Alpha@123",
-    "confirmPassword": "Alpha@123"
+    "password": "demo",
+    "confirmPassword": "demo"
   },
 
   "account": {
