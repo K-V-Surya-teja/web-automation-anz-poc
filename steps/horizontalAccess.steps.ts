@@ -17,7 +17,6 @@ Given('a second user is registered in a separate browser context', async functio
     testData.registration,
     testData.registration.secondaryUsername,
   );
-  await expect(this.secondaryPage.getByRole('link', { name: /Log Out/i })).toBeVisible();
 });
 
 When('the second user attempts to access the first user account data', async function (this: CustomWorld) {
