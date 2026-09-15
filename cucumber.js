@@ -7,7 +7,10 @@ module.exports = {
     require: [
       "steps/**/*.ts",
       'hooks/**/*.ts',
-      "support/**/*.ts"],
+      "support/**/*.ts"
+    ],
+    
+    tags: "not @ignore",
 
     requireModule: ["tsx/cjs"],
 
