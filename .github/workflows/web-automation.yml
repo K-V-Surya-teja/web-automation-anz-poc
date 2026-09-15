@@ -46,16 +46,6 @@ jobs:
         run: New-Item -ItemType Directory -Path reports -Force
         shell: pwsh
 
-      - name: Verify Environment Variables
-        shell: pwsh
-        run: |
-          Write-Host "WEB_BASE_URL loaded: $([bool]$env:WEB_BASE_URL)"
-          Write-Host "MFA_BASE_URL loaded: $([bool]$env:MFA_BASE_URL)"
-          Write-Host "GITHUB_USER loaded: $([bool]$env:GITHUB_USER)"
-          Write-Host "GITHUB_PASS loaded: $([bool]$env:GITHUB_PASS)"
-          Write-Host "GITHUB_MFA_SECRET loaded: $([bool]$env:GITHUB_MFA_SECRET)"
-          Write-Host "BROWSER = $env:BROWSER"
-          Write-Host "WEB_PARALLEL_WORKERS = $env:WEB_PARALLEL_WORKERS"
 
       - name: Run Cucumber Tests
         shell: pwsh
