@@ -103,11 +103,21 @@ steps:
 
       Write-Host "Original HTML Length: $($html.Length)"
 
-      $maxLength = 6038
+      $html = Get-Content "reports/email-report.html" -Raw
 
-      if ($html.Length -gt $maxLength) {
-        $html = $html.Substring(0, $maxLength)
+      if ($html.Length -gt 6038) {
+
+        $maxLength = 6038
+
       }
+
+      else {
+
+      $maxLength = $html.Length
+
+      }
+
+      $html = $html.Substring(0, $maxLength)
 
       $summary = Get-Content "reports/email-summary.json" -Raw | ConvertFrom-Json
 
