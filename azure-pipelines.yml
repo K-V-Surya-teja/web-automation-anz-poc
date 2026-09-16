@@ -98,22 +98,28 @@ steps:
     targetType: 'inline'
     script: |
 
-      if (!(Test-Path "reports/email-report.html")) {
-        Write-Host "email-report.html not found."
-        exit 1
-      }
+      Write-Host "Step 1: Reading HTML"
 
       $html = Get-Content "reports/email-report.html" -Raw
+
+      Write-Host "Step 2: HTML Length = $($html.Length)"
 
       $payload = @{
           subject = "ANZ Web Automation Execution Report - Build $(Build.BuildNumber)"
           htmlBody = $html
       } | ConvertTo-Json -Depth 10 -Compress
 
-      Invoke-RestMethod `
+      Write-Host "Step 3: Calling Power Automate"
+
+      $response = Invoke-RestMethod `
         -Uri "$(POWER_AUTOMATE_URL)" `
         -Method POST `
         -ContentType "application/json" `
-        -Body $payload
+        -Body $payload `
+        -TimeoutSec 60
 
-      Write-Host "Email sent successfully"
+      Write-Host "Step 4: Response Received"
+
+      $response | ConvertTo-Json
+
+      Write-Host "Step 5: Completed"
