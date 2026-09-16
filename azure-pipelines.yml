@@ -36,61 +36,74 @@ steps:
     version: '24.x'
   displayName: 'Set Up Node.js'
 
-# - script: npm ci
-#   displayName: 'Install Dependencies'
+- script: npm ci
+  displayName: 'Install Dependencies'
 
-# - script: npx playwright install --with-deps
-#   displayName: 'Install Playwright Browsers'
+- script: npx playwright install --with-deps
+  displayName: 'Install Playwright Browsers'
 
-# - script: mkdir reports
-#   displayName: 'Create Reports Directory'
-#   continueOnError: true
+- script: mkdir reports
+  displayName: 'Create Reports Directory'
+  continueOnError: true
 
-# - script: npm run test:web
-#   displayName: 'Run Cucumber Tests'
-#   env:
-#     WEB_BASE_URL: $(WEB_BASE_URL)
-#     MFA_BASE_URL: $(MFA_BASE_URL)
-#     GITHUB_USER: $(GITHUB_USER)
-#     GITHUB_PASS: $(GITHUB_PASS)
-#     GITHUB_MFA_SECRET: $(GITHUB_MFA_SECRET)
-#     BROWSER: $(BROWSER)
-#     WEB_PARALLEL_WORKERS: $(WEB_PARALLEL_WORKERS)
-# - task: PublishTestResults@2
-#   displayName: 'Publish JUnit Test Results'
-#   condition: always()
-#   inputs:
-#     testResultsFormat: 'JUnit'
-#     testResultsFiles: 'reports/cucumber.xml'
-#     failTaskOnFailedTests: false
-#     testRunTitle: 'Playwright Cucumber Tests'
-# - task: PublishPipelineArtifact@1
-#   inputs:
-#     targetPath: reports
-#     artifact: CucumberReport
-#   condition: always()
+- script: npm run test:web
+  displayName: 'Run Cucumber Tests'
+  env:
+    WEB_BASE_URL: $(WEB_BASE_URL)
+    MFA_BASE_URL: $(MFA_BASE_URL)
+    GITHUB_USER: $(GITHUB_USER)
+    GITHUB_PASS: $(GITHUB_PASS)
+    GITHUB_MFA_SECRET: $(GITHUB_MFA_SECRET)
+    BROWSER: $(BROWSER)
+    WEB_PARALLEL_WORKERS: $(WEB_PARALLEL_WORKERS)
+- task: PublishTestResults@2
+  displayName: 'Publish JUnit Test Results'
+  condition: always()
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'reports/cucumber.xml'
+    failTaskOnFailedTests: false
+    testRunTitle: 'Playwright Cucumber Tests'
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: reports
+    artifact: CucumberReport
+  condition: always()
 
-# - script: |
-#     npm run allure:generate
+- script: |
+    npm run allure:generate
 
-#     echo ===== ALLURE REPORT =====
-#     dir allure-report
-#   displayName: 'Generate Allure Report'
-#   condition: always()
+    echo ===== ALLURE REPORT =====
+    dir allure-report
+  displayName: 'Generate Allure Report'
+  condition: always()
 
-# - task: PublishPipelineArtifact@1
-#   inputs:
-#     targetPath: 'allure-report'
-#     artifact: 'AllureReport'
-#   condition: always()
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: 'allure-report'
+    artifact: 'AllureReport'
+  condition: always()
 
-# - task: PowerShell@2
-#   displayName: 'Generate Email Report'
-#   condition: always()
-#   inputs:
-#     targetType: 'inline'
-#     script: |
-#       npx ts-node reporting/generateEmailReport.ts
+- task: PowerShell@2
+  displayName: 'Generate Email Report'
+  condition: always()
+  inputs:
+    targetType: 'inline'
+    script: |
+      npx ts-node reporting/generateEmailReport.ts
+
+- task: PowerShell@2
+  displayName: 'Verify Report Files'
+  condition: always()
+  inputs:
+    targetType: 'inline'
+    script: |
+
+      Write-Host "===== REPORT FILES ====="
+
+      dir reports
+
+      Write-Host "========================"
 
 - task: PowerShell@2
   displayName: 'Send Email Report'
@@ -99,10 +112,22 @@ steps:
     targetType: 'inline'
     script: |
 
+      Write-Host "Reading HTML report..."
+
+      $html = Get-Content "reports/email-report.html" -Raw
+
+      Write-Host "HTML Length: $($html.Length)"
+
+      # TEMP DEBUG
+      # Send only first 1000 characters
+      $html = $html.Substring(0, :Min(1000, $html.Length))
+
       $payload = @{
-          subject = "Test Email"
-          htmlBody = "<h1 style='color:red'>HELLO FROM AZURE DEVOPS</h1>"
+          subject = "ANZ Automation Report"
+          htmlBody = $html
       } | ConvertTo-Json -Compress
+
+      Write-Host "Sending email..."
 
       Invoke-RestMethod `
         -Uri "$(POWER_AUTOMATE_URL)" `
