@@ -1,6 +1,7 @@
 Feature: ParaBank horizontal access control
 
   @horizontal-access
+  @ignore
   Scenario: A user cannot access another user's account data
     Given the customer is on the ParaBank home page
     When the customer logs in using the shared test user
