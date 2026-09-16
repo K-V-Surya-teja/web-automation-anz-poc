@@ -99,11 +99,10 @@ steps:
     targetType: 'inline'
     script: |
 
-      Write-Host "Reading HTML..."
-
       $html = Get-Content "reports/email-report.html" -Raw
 
-      Write-Host "HTML Length: $($html.Length)"
+      # TEMP TEST
+      $html = $html.Substring(0,1000)
 
       $payload = @{
           subject = "ANZ Automation Report"
