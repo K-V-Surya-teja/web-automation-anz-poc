@@ -4,14 +4,14 @@ trigger:
 
 
 schedules:
-- cron: '30 19 * * *'
-  displayName: 'Nightly test run - 01:00 AM IST'
+- cron: '30 21 * * *'
+  displayName: 'Nightly test run - 03:00 AM IST'
   branches:
     include:
       - main
   always: true
-- cron: '30 21 * * *'
-  displayName: 'Nightly test run - 03:00 AM IST'
+- cron: '30 22 * * *'
+  displayName: 'Nightly test run - 04:00 AM IST'
   branches:
     include:
       - main
