@@ -1,5 +1,6 @@
 trigger:
   - main
+  - web-workflow-test
 
 
 schedules:
@@ -98,28 +99,31 @@ steps:
     targetType: 'inline'
     script: |
 
-      Write-Host "Step 1: Reading HTML"
+      Write-Host "Step 1"
 
       $html = Get-Content "reports/email-report.html" -Raw
 
-      Write-Host "Step 2: HTML Length = $($html.Length)"
+      Write-Host "Step 2"
+
+      $subject = "ANZ Web Automation Execution Report - Build $(Build.BuildNumber)"
+
+      Write-Host "Step 3"
 
       $payload = @{
-          subject = "ANZ Web Automation Execution Report - Build $(Build.BuildNumber)"
+          subject = $subject
           htmlBody = $html
-      } | ConvertTo-Json -Depth 10 -Compress
+      }
 
-      Write-Host "Step 3: Calling Power Automate"
+      Write-Host "Step 4"
 
-      $response = Invoke-RestMethod `
+      $json = $payload | ConvertTo-Json -Compress
+
+      Write-Host "Step 5"
+
+      Invoke-WebRequest `
         -Uri "$(POWER_AUTOMATE_URL)" `
         -Method POST `
-        -ContentType "application/json" `
-        -Body $payload `
-        -TimeoutSec 60
+        -Body $json `
+        -ContentType "application/json"
 
-      Write-Host "Step 4: Response Received"
-
-      $response | ConvertTo-Json
-
-      Write-Host "Step 5: Completed"
+      Write-Host "Step 6"
