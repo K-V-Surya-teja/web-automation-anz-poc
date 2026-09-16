@@ -15,6 +15,7 @@
     "pages/**/*.ts",
     "steps/**/*.ts",
     "support/**/*.ts",
-    "testData/**/*.ts"
+    "testData/**/*.ts",
+    "reporting/generateEmailReport.ts"  
   ]
 }

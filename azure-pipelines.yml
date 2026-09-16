@@ -1,8 +1,26 @@
 trigger:
+  - main
+
+
+schedules:
+- cron: '0 22 * * *'
+  displayName: 'Nightly test run - 03:30 AM IST'
   branches:
     include:
       - main
-      - web-workflow-test
+  always: true
+- cron: '0 23 * * *'
+  displayName: 'Nightly test run - 04:30 AM IST'
+  branches:
+    include:
+      - main
+  always: true
+- cron: '0 0 * * *'
+  displayName: 'Nightly test run - 05:30 AM IST'
+  branches:
+    include:
+      - main
+  always: true
 
 variables:
 - group: WebAutomationVariables
@@ -64,3 +82,47 @@ steps:
     targetPath: 'allure-report'
     artifact: 'AllureReport'
   condition: always()
+
+- task: PowerShell@2
+  displayName: 'Generate Email Report'
+  condition: always()
+  inputs:
+    targetType: 'inline'
+    script: |
+      npx ts-node reporting/generateEmailReport.ts
+
+
+- task: PowerShell@2
+  displayName: 'Send Email Report'
+  condition: always()
+  inputs:
+    targetType: 'inline'
+    script: |
+
+      $html = Get-Content "reports/email-report.html" -Raw
+
+      Write-Host "Original HTML Length: $($html.Length)"
+
+      $maxLength = 6038
+
+      if ($html.Length -gt $maxLength) {
+        $html = $html.Substring(0, $maxLength)
+      }
+
+      $summary = Get-Content "reports/email-summary.json" -Raw | ConvertFrom-Json
+
+      $subject = "ANZ Automation Report | Passed: $($summary.passedTests) | Failed: $($summary.failedTests) | Pass Rate: $($summary.passPercentage)%"
+
+      $payload = @{
+          subject = $subject
+          htmlBody = $html
+      } | ConvertTo-Json -Compress
+
+      Invoke-RestMethod `
+        -Uri "$(POWER_AUTOMATE_URL)" `
+        -Method POST `
+        -ContentType "application/json" `
+        -Body $payload `
+        -ErrorAction Stop
+
+      Write-Host "Email sent successfully"
