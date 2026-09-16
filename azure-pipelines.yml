@@ -1,8 +1,26 @@
 trigger:
+  - main
+
+
+schedules:
+- cron: '30 18 * * *'
+  displayName: 'Nightly test run - 12:00 AM IST'
   branches:
     include:
       - main
-      - web-workflow-test
+  always: true
+- cron: '30 20 * * *'
+  displayName: 'Nightly test run - 02:00 AM IST'
+  branches:
+    include:
+      - main
+  always: true
+- cron: '30 22 * * *'
+  displayName: 'Nightly test run - 04:00 AM IST'
+  branches:
+    include:
+      - main
+  always: true
 
 variables:
 - group: WebAutomationVariables
@@ -64,3 +82,38 @@ steps:
     targetPath: 'allure-report'
     artifact: 'AllureReport'
   condition: always()
+
+- task: PowerShell@2
+  displayName: 'Generate Email Report'
+  condition: always()
+  inputs:
+    targetType: 'inline'
+    script: |
+      npx ts-node reporting/generateEmailReport.ts
+
+- task: PowerShell@2
+  displayName: 'Send Email Report'
+  condition: always()
+  inputs:
+    targetType: 'inline'
+    script: |
+
+      if (!(Test-Path "reports/email-report.html")) {
+        Write-Host "email-report.html not found."
+        exit 1
+      }
+
+      $html = Get-Content "reports/email-report.html" -Raw
+
+      $payload = @{
+          subject = "ANZ Web Automation Execution Report - Build $(Build.BuildNumber)"
+          htmlBody = $html
+      } | ConvertTo-Json -Depth 10 -Compress
+
+      Invoke-RestMethod `
+        -Uri "$(POWER_AUTOMATE_URL)" `
+        -Method POST `
+        -ContentType "application/json" `
+        -Body $payload
+
+      Write-Host "Email sent successfully"
