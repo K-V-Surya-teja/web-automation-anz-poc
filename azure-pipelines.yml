@@ -99,14 +99,14 @@ steps:
     targetType: 'inline'
     script: |
 
+      Write-Host "Reading HTML..."
+
       $html = Get-Content "reports/email-report.html" -Raw
 
-      $summary = Get-Content "reports/email-summary.json" -Raw | ConvertFrom-Json
-
-      $subject = "ANZ Automation Report | Passed: $($summary.passedTests) | Failed: $($summary.failedTests) | Pass Rate: $($summary.passPercentage)%"
+      Write-Host "HTML Length: $($html.Length)"
 
       $payload = @{
-          subject = $subject
+          subject = "ANZ Automation Report"
           htmlBody = $html
       } | ConvertTo-Json -Compress
 
