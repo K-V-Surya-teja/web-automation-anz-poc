@@ -99,11 +99,6 @@ steps:
     targetType: 'inline'
     script: |
 
-      $html = Get-Content "reports/email-report.html" -Raw
-
-      # TEMP TEST
-      $html = $html.Substring(0,1000)
-
       $payload = @{
           subject = "Test Email"
           htmlBody = "<h1 style='color:red'>HELLO FROM AZURE DEVOPS</h1>"
