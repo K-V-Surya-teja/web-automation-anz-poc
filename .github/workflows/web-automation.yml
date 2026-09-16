@@ -1,0 +1,107 @@
+name: Web Automation (Windows)
+
+on:
+  push:
+    branches:
+      - main
+      - web-workflow-test
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+env:
+  WEB_BASE_URL: ${{ vars.WEB_BASE_URL }}
+  MFA_BASE_URL: ${{ vars.MFA_BASE_URL }}
+  GITHUB_USER: ${{ vars.GIT_USER }}
+  GITHUB_PASS: ${{ secrets.GIT_PASS }}
+  GITHUB_MFA_SECRET: ${{ secrets.GIT_MFA_SECRET }}
+  BROWSER: ${{ vars.BROWSER }}
+  WEB_PARALLEL_WORKERS: ${{ vars.WEB_PARALLEL_WORKERS }}
+
+jobs:
+  web-tests-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Dependencies
+        run: npm ci
+        shell: pwsh
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        shell: pwsh
+
+      - name: Create Reports Directory
+        run: New-Item -ItemType Directory -Path reports -Force
+        shell: pwsh
+
+
+      - name: Run Cucumber Tests
+        shell: pwsh
+        env:
+          DEBUG: ''
+          PWDEBUG: ''
+        run: |
+          Write-Host "========================================"
+          Write-Host "Starting Cucumber Tests"
+          Write-Host "========================================"
+          Write-Host "Browser: $env:BROWSER"
+          Write-Host "Base URL: $env:WEB_BASE_URL"
+          Write-Host ""
+
+          npm run test:web 2>&1 | Tee-Object -FilePath cucumber.log
+
+          $exitCode = $LASTEXITCODE
+
+          Write-Host ""
+          Write-Host "========================================"
+          Write-Host "Test Execution Completed"
+          Write-Host "Exit Code: $exitCode"
+          Write-Host "========================================"
+
+          exit $exitCode
+
+      - name: Generate Allure Report
+        if: always()
+        shell: pwsh
+        run: |
+          npm run allure:generate
+
+      - name: Upload Cucumber Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-log-windows
+          path: cucumber.log
+
+      - name: Upload Cucumber Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report
+          path: reports
+
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      - name: Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: reports/screenshots

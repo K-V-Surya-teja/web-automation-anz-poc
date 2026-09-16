@@ -1,5 +1,11 @@
 trigger:
-- main
+  branches:
+    include:
+      - main
+      - web-workflow-test
+
+variables:
+- group: WebAutomationVariables
 
 pool:
   vmImage: 'windows-latest'
@@ -21,15 +27,40 @@ steps:
   displayName: 'Create Reports Directory'
   continueOnError: true
 
-- script: |
-    npx cucumber-js ^
-      --profile web ^
-      --format json:reports/cucumber.json ^
-      --format progress
+- script: npm run test:web
   displayName: 'Run Cucumber Tests'
-
+  env:
+    WEB_BASE_URL: $(WEB_BASE_URL)
+    MFA_BASE_URL: $(MFA_BASE_URL)
+    GITHUB_USER: $(GITHUB_USER)
+    GITHUB_PASS: $(GITHUB_PASS)
+    GITHUB_MFA_SECRET: $(GITHUB_MFA_SECRET)
+    BROWSER: $(BROWSER)
+    WEB_PARALLEL_WORKERS: $(WEB_PARALLEL_WORKERS)
+- task: PublishTestResults@2
+  displayName: 'Publish JUnit Test Results'
+  condition: always()
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'reports/cucumber.xml'
+    failTaskOnFailedTests: false
+    testRunTitle: 'Playwright Cucumber Tests'
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: reports
     artifact: CucumberReport
+  condition: always()
+
+- script: |
+    npm run allure:generate
+
+    echo ===== ALLURE REPORT =====
+    dir allure-report
+  displayName: 'Generate Allure Report'
+  condition: always()
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: 'allure-report'
+    artifact: 'AllureReport'
   condition: always()
