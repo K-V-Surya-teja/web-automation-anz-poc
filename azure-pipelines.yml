@@ -93,25 +93,22 @@ steps:
 #       npx ts-node reporting/generateEmailReport.ts
 
 - task: PowerShell@2
-  displayName: 'Test URL Reachability'
+  displayName: 'Send Email Report'
+  condition: always()
   inputs:
     targetType: 'inline'
     script: |
 
-      $url = "$(POWER_AUTOMATE_URL)"
+      $payload = @{
+          subject = "Test Email"
+          htmlBody = "<h1>Hello from Azure Pipeline</h1>"
+      } | ConvertTo-Json -Compress
 
-      Write-Host "Testing: $($url.Substring(0,50))"
+      Invoke-RestMethod `
+        -Uri "$(POWER_AUTOMATE_URL)" `
+        -Method POST `
+        -ContentType "application/json" `
+        -Body $payload `
+        -ErrorAction Stop
 
-      try {
-        Invoke-WebRequest `
-          -Uri $url `
-          -Method POST `
-          -ContentType "application/json" `
-          -Body '{"subject":"Test","htmlBody":"<h1>Hello</h1>"}'
-
-        Write-Host "SUCCESS"
-      }
-      catch {
-        Write-Host $_.Exception.Message
-        throw
-      }
+      Write-Host "Email sent successfully"
