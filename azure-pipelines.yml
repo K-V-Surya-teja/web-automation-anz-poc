@@ -86,6 +86,10 @@ steps:
 - task: PowerShell@2
   displayName: 'Generate Email Report'
   condition: always()
+  env:
+    BUILD_ID: $(Build.BuildId)
+    COLLECTION_URI: $(System.TeamFoundationCollectionUri)
+    TEAM_PROJECT: $(System.TeamProject)
   inputs:
     targetType: 'inline'
     script: |

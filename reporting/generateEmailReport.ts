@@ -53,6 +53,19 @@ async function generateEmailReport(
       ? "#ff9800"
       : "#dc3545";
 
+  const collectionUri = process.env.COLLECTION_URI ?? "";
+  const teamProject = process.env.TEAM_PROJECT ?? "";
+  const buildIdValue = buildId ?? "N/A";
+  const buildUrl =
+    buildIdValue !== "N/A"
+      ? `${collectionUri}${teamProject}/_build/results?buildId=${buildIdValue}`
+      : "";
+
+  const artifactsUrl =
+    buildIdValue !== "N/A"
+      ? `${collectionUri}${teamProject}/_build/results?buildId=${buildIdValue}&view=artifacts`
+      : "";
+
   let html = `
 <!DOCTYPE html>
 <html>
@@ -196,7 +209,9 @@ pre{
 </div>
 
 <div class="info-card">
-<p><strong>Build ID:</strong> ${buildId ?? "N/A"}</p>
+<p><strong>Build:</strong>${buildUrl}${buildIdValue}</a></p>
+<p><strong>Artifacts:</strong>${artifactsUrl}View Artifacts</a>
+</p>
 <p><strong>Execution Time:</strong> ${executionTime}</p>
 </div>
 
@@ -275,14 +290,17 @@ ${failed ? "FAIL" : "PASS"}
 
 
 
+
   const summary = {
-    totalTests,
-    passedTests,
-    failedTests,
-    passPercentage,
-    totalDuration,
-    executionTime,
-    buildId: buildId ?? "N/A"
+  totalTests,
+  passedTests,
+  failedTests,
+  passPercentage,
+  totalDuration,
+  executionTime,
+  buildId: buildIdValue,
+  buildUrl,
+  artifactsUrl
   };
 
   fs.writeFileSync(
