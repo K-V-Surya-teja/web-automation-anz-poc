@@ -2,25 +2,25 @@ trigger:
   - main
 
 
-schedules:
-- cron: '0 22 * * *'
-  displayName: 'Nightly test run - 03:30 AM IST'
-  branches:
-    include:
-      - main
-  always: true
-- cron: '0 23 * * *'
-  displayName: 'Nightly test run - 04:30 AM IST'
-  branches:
-    include:
-      - main
-  always: true
-- cron: '0 0 * * *'
-  displayName: 'Nightly test run - 05:30 AM IST'
-  branches:
-    include:
-      - main
-  always: true
+# schedules:
+# - cron: '0 22 * * *'
+#   displayName: 'Nightly test run - 03:30 AM IST'
+#   branches:
+#     include:
+#       - main
+#   always: true
+# - cron: '0 23 * * *'
+#   displayName: 'Nightly test run - 04:30 AM IST'
+#   branches:
+#     include:
+#       - main
+#   always: true
+# - cron: '0 0 * * *'
+#   displayName: 'Nightly test run - 05:30 AM IST'
+#   branches:
+#     include:
+#       - main
+#   always: true
 
 variables:
 - group: WebAutomationVariables
