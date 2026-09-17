@@ -32,8 +32,21 @@ async function generateEmailReport(
       : "0";
 
   const executionTime = suite.$?.timestamp
-    ? new Date(suite.$.timestamp).toLocaleString()
-    : "N/A";
+  ? new Date(suite.$.timestamp).toLocaleString(
+      "en-IN",
+      {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      }
+    ) + " IST"
+  : "N/A";
+
 
   const suiteDurationSeconds = Number(
     suite.$?.time || 0
