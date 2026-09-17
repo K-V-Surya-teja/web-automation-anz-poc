@@ -209,8 +209,9 @@ pre{
 </div>
 
 <div class="info-card">
-<p><strong>Build:</strong>${buildUrl}${buildIdValue}</a></p>
-<p><strong>Artifacts:</strong>${artifactsUrl}View Artifacts</a>
+<p><strong>Build:</strong>
+    <a href="${buildUrl}" target="_blank">${buildIdValue}</a> &nbsp;|&nbsp;
+    <a href="${artifactsUrl}" target="_blank">View Artifacts</a>
 </p>
 <p><strong>Execution Time:</strong> ${executionTime}</p>
 </div>
